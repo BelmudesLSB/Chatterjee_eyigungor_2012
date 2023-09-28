@@ -1,5 +1,7 @@
 #include <cmath>
 #include <iostream>
+
+#include <mex.h>
 #include "economy.hpp"
 #include "math_functions.hpp"
 #include "aux_functions.hpp"
@@ -246,6 +248,8 @@ double CE_economy::consumption_x(int x, int i, int j, double* q){
 
 void CE_economy::solve(){
 
+    mexPrintf("Solving the model: \n");
+
     double* Vd_0 = new double[Ny];
     double* E_mV = new double[Nb*Ny]; // Store the results of the ggq_algorithm.
     double* q_1 = new double[Nb*Ny];  // Store the results of the ggq_algorithm regarding the price, using q_0 as argument.
@@ -262,6 +266,7 @@ void CE_economy::solve(){
 
             copy_values(Vd_0, Vd, Ny);
             double aux = 0.00;
+
             for (int i=0; i<Ny; i++){
                 aux = 0.00;
                 for (int j=0; j<Ny; j++){
@@ -332,6 +337,13 @@ void CE_economy::solve(){
             if (iter % 250 == 0){
                 std::cout << "Iteration: " << iter << std::endl;
                 std::cout << "Distances| Q:" << dis_q << " and W:" << dis_w << std::endl;
+                mexPrintf("Distance in price: \n");
+                mexPrintf("%f ", dis_q);
+                mexPrintf("Distance in W: \n");
+                mexPrintf("%f ", dis_w);
+                mexPrintf("Iter: \n");
+                mexPrintf("%f ", iter);
+                mexPrintf("\n");
             }
 
             if (iter> Max_iter){

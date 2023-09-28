@@ -8,10 +8,9 @@
 #include "aux_functions.hpp"
 #include "ggq_algorithm.hpp"
 #include "econ_functions.hpp"
-#include <cstdint>
 
 
-void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]){
     
     // Check for the proper number of arguments
     if (nrhs != 1 || nlhs != 1) {
@@ -22,7 +21,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     const mxArray* paramsStruct = prhs[0];
 
     // Preference parameters:
-    int nthreads = static_cast<int>(mxGetScalar(mxGetField(paramsStruct, 0, "nthreads")));
+    //int nthreads = static_cast<int>(mxGetScalar(mxGetField(paramsStruct, 0, "nthreads")));
     double beta = mxGetScalar(mxGetField(paramsStruct, 0, "beta"));
     double gamma =  mxGetScalar(mxGetField(paramsStruct, 0, "gamma"));
 
@@ -30,6 +29,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     double rho = mxGetScalar(mxGetField(paramsStruct, 0, "rho"));
     double sigma_e = mxGetScalar(mxGetField(paramsStruct, 0, "sigma_e"));
     double sigma_m = mxGetScalar(mxGetField(paramsStruct, 0, "sigma_m"));
+    double t = mxGetScalar(mxGetField(paramsStruct, 0, "t"));
     double d_0 = mxGetScalar(mxGetField(paramsStruct, 0, "d_0"));
     double d_1 = mxGetScalar(mxGetField(paramsStruct, 0, "d_1"));
 
@@ -39,6 +39,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     double b_min = mxGetScalar(mxGetField(paramsStruct, 0, "b_min"));
     double b_max = mxGetScalar(mxGetField(paramsStruct, 0, "b_max"));
     double m_bar = mxGetScalar(mxGetField(paramsStruct, 0, "m_bar"));
+
 
     // Convergence parameters:
     int max_iter = static_cast<int>(mxGetScalar(mxGetField(paramsStruct, 0, "max_iter")));
@@ -55,7 +56,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     double eta_vd = mxGetScalar(mxGetField(paramsStruct, 0, "eta_vd"));
 
     //New! set the number of threads:
-    omp_set_num_threads(nthreads);
+    //omp_set_num_threads(nthreads);
 
     /*
     Section 2: Allocate memory space to store the results of the model:
@@ -66,22 +67,31 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     // Pointers to store the grids and transition matrices:
     mxArray* ygrid = mxCreateDoubleMatrix(ny, 1, mxREAL);
     mxArray* bgrid = mxCreateDoubleMatrix(nb, 1, mxREAL);
-    mxArray* pgrid = mxCreateDoubleMatrix(ny* ny, mxREAL);
+    mxArray* pgrid = mxCreateDoubleMatrix(ny*ny, 1, mxREAL);
 
     // Pointers to store the value functions:
 
     mxArray* Vd = mxCreateDoubleMatrix(ny, 1, mxREAL);
-    mxArray* W = mxCreateDoubleMatrix(ny*nb, 1, mxREAL);
+    mxArray* W = mxCreateDoubleMatrix(ny * nb, 1, mxREAL);
 
     // Pointers to store the policy functions and prices:
 
-    mxArray* Q = mxCreateDoubleMatrix(ny*nb, 1, mxREAL);
+    mxArray* Q = mxCreateDoubleMatrix(ny * nb, 1, mxREAL);
+
+    double* ygridPtr = mxGetPr(ygrid);
+    double* bgridPtr = mxGetPr(bgrid);
+    double* pgridPtr = mxGetPr(pgrid);
+    double* Vd_Ptr = mxGetPr(Vd);
+    double* W_ptr = mxGetPr(W);
+    double* q_Ptr = mxGetPr(Q);
+
 
     /* 
     Section 3: Create the instance of the class and initialize the economy:
     */
-
+    mexPrintf("Create the instance of the class and initialize the economy: \n");
     CE_economy c_economy(beta, gamma, rho, sigma_e, sigma_m, d_0, d_1, ny, nb, b_min, b_max, m_bar, t, max_iter, tol, r, lambda, z, xi, eta_q, eta_w, eta_vd, ygridPtr, bgridPtr, pgridPtr, Vd_Ptr, W_ptr, q_Ptr);
+    mexPrintf("Init Economy: \n");
     c_economy.initialize();
 
     /*
@@ -89,17 +99,17 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     */  
 
     c_economy.solve();
-
+    
     /*
     Section 5: Copy and Export to MATLAB
     */
 
-    copy_values(c_economy.Ygrid, ygrid, ny);
-    copy_values(c_economy.Bgrid, bgrid, nb);
-    copy_values(c_economy.P, pgrid, ny*ny);
-    copy_values(c_economy.Vd, Vd, ny);
-    copy_values(c_economy.W, W, ny*nb);
-    copy_values(c_economy.Q, Q, ny*nb);
+    copy_values(c_economy.Ygrid, ygridPtr, ny);
+    copy_values(c_economy.Bgrid, bgridPtr, nb);
+    copy_values(c_economy.P, pgridPtr, ny*ny);
+    copy_values(c_economy.Vd, Vd_Ptr, ny);
+    copy_values(c_economy.W, W_ptr, ny*nb);
+    copy_values(c_economy.Q, q_Ptr, ny*nb);
 
     const char* fieldNames[6]= {"ygrid", "bgrid", "pgrid", "Vd", "W", "Q"};
     plhs[0] = mxCreateStructMatrix(1, 1, 6, fieldNames);

@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "economy.hpp"
 #include "math_functions.hpp"
 #include "aux_functions.hpp"
 #include "econ_functions.hpp"
