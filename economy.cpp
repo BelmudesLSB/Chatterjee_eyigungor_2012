@@ -248,8 +248,6 @@ double CE_economy::consumption_x(int x, int i, int j, double* q){
 
 void CE_economy::solve(){
 
-    mexPrintf("Solving the model: \n");
-
     double* Vd_0 = new double[Ny];
     double* E_mV = new double[Nb*Ny]; // Store the results of the ggq_algorithm.
     double* q_1 = new double[Nb*Ny];  // Store the results of the ggq_algorithm regarding the price, using q_0 as argument.
@@ -334,20 +332,16 @@ void CE_economy::solve(){
 
             iter += 1;
 
-            if (iter % 250 == 0){
+            if (iter % 5000 == 0){
                 std::cout << "Iteration: " << iter << std::endl;
                 std::cout << "Distances| Q:" << dis_q << " and W:" << dis_w << std::endl;
-                mexPrintf("Distance in price: \n");
-                mexPrintf("%f ", dis_q);
-                mexPrintf("Distance in W: \n");
-                mexPrintf("%f ", dis_w);
-                mexPrintf("Iter: \n");
-                mexPrintf("%f ", iter);
-                mexPrintf("\n");
+                mexPrintf("Iteration: %d\n", iter);
+                mexPrintf("Current Distance: Q %f and W %f\n", dis_q, dis_w);
             }
 
             if (iter> Max_iter){
                 std::cout << "The algorithm did not converge" << std::endl;
+                mexPrintf("The algorithm did not converge\n");
                 break;
             }
 
@@ -361,18 +355,11 @@ void CE_economy::solve(){
                 displayQ(W, Ny, Nb);
                 std::cout << "The value of default is: " << std::endl;
                 displayV(Vd, Ny);
+                mexPrintf("Solution found\n");
+                mexPrintf("The algorithm converged in %d iterations\n", iter);
+                mexPrintf("Distances: Q %f and W %f\n", dis_q, dis_w);
                 break;
             }
-
-        }
-   
-
-    delete [] C_vector;
-    delete [] W_vector;
-    delete [] E_mV;
-    delete [] Vd_0;
-    delete [] q_1;
-    delete [] q_0;
-    delete [] w_0;
+    }
 }
 

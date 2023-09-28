@@ -32,12 +32,12 @@ params.b_max = 0.0;         % Maximum bond holdings
 params.m_bar = 0.006;       % Maximum value for m
 
 % Convergence parameters:
-params.max_iter = 50000;    % Maximum number of iterations
+params.max_iter = 50000;    % Maximum number of iterationss
 params.tol = 1e-6;          % Tolerance for convergence
 
 % Term structure parameters:
 params.r = 0.01;            % Risk free interest rate
-params.lambda = 0.05;       % Reciprocal of average maturity
+params.lambda = 0.05;      % Reciprocal of average maturity
 params.z = 0.03;            % Coupon payments
 params.xi = 0.035;          % Probability of reentry
 params.eta_q = 0.995;       % weight on the old bond price
@@ -48,6 +48,17 @@ params.eta_vd = 0;          % weight on the new value of default
 % Call the MEX function to solve the model
 output = main(params);
 toc;
+
+
+
+
+
+
+
+
+
+
+
 %%
 
 % Retrieve the output arrays
