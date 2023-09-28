@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <mex.h>
 
 #include "economy.hpp"
 #include "math_functions.hpp"
