@@ -47,40 +47,8 @@ params.eta_vd = 0;          % weight on the new value of default
 
 % Call the MEX function to solve the model
 output = main(params);
+save('Results_calibrated_model.mat', 'output')
+save('Parameters', 'params')
 toc;
-
-
-
-
-
-
-
-
-
-
 
 %%
-
-% Retrieve the output arrays
-ygrid = output.Ygrid;
-bgrid = output.Bgrid;
-p = output.P;
-v = output.V;
-v_r = output.V_r;
-v_d = output.V_d;
-q = output.Q;
-b_p = output.B_p;
-d_p = output.D_p;
-toc;
-
-% Transform everything from vectors into matrices (n_y x n_b):
-Y = ygrid;
-B = bgrid;
-P = (reshape(p, [params.ny, params.ny]))';
-V = (reshape(v, [params.nb, params.ny]))';
-V_r = (reshape(v_r, [params.nb, params.ny]))';
-Q = (reshape(q, [params.nb, params.ny]))';
-D_p = (reshape(d_p, [params.nb, params.ny]))';
-B_p = (reshape(b_p, [params.nb, params.ny]))';
-ny = params.ny;
-nb = params.nb;
