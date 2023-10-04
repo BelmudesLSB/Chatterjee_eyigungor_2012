@@ -29,9 +29,10 @@
 \bibtex_command default
 \index_command default
 \paperfontsize default
+\spacing single
 \use_hyperref false
 \papersize default
-\use_geometry false
+\use_geometry true
 \use_package amsmath 1
 \use_package amssymb 1
 \use_package cancel 1
@@ -44,6 +45,7 @@
 \use_package undertilde 1
 \cite_engine basic
 \cite_engine_type default
+\biblio_style plain
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
@@ -55,6 +57,13 @@
 \shortcut idx
 \color #008000
 \end_index
+\leftmargin 2cm
+\topmargin 2cm
+\rightmargin 2cm
+\bottommargin 2cm
+\headheight 2cm
+\headsep 2cm
+\footskip 2cm
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
@@ -115,20 +124,6 @@ Note that:
 
 \begin_deeper
 \begin_layout Itemize
-\begin_inset Formula $W^{1,0}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-\begin_inset Formula $W^{1,1}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
 \begin_inset Formula $q^{1,0}\left(i\times nb+b\right)$
 \end_inset
 
@@ -136,14 +131,7 @@ Note that:
 \begin_inset Formula $i$
 \end_inset
 
- of issuing !
-\end_layout
-
-\begin_layout Itemize
-\begin_inset Formula $q^{1,1}$
-\end_inset
-
-
+ of issuing !s
 \end_layout
 
 \end_deeper
@@ -164,7 +152,15 @@ Create
 \begin_inset Formula $\tilde{X}(\bar{m})=\left[\right]$
 \end_inset
 
-, 
+
+\end_layout
+
+\begin_layout Itemize
+First store the corresponding continuation values in a vector 
+\begin_inset Formula $W(x)=W(i*nb+x)$
+\end_inset
+
+.
 \end_layout
 
 \begin_deeper
@@ -194,7 +190,7 @@ If
 
 \begin_deeper
 \begin_layout Enumerate
-\begin_inset Formula $m.grid=\left[\right]$
+\begin_inset Formula $m.grid=\left[-\bar{m},\bar{m}\right]$
 \end_inset
 
 .
@@ -211,14 +207,6 @@ If
 \begin_layout Enumerate
 \begin_inset Formula $b^{\prime}(i,b,m)=\begin{cases}
 nan & \forall m\in\left[-\bar{m},\bar{m}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)=\begin{cases}
-Y[i]-\phi(y)-\bar{m} & \forall m\in\left[-\bar{m},\bar{m}\right].\end{cases}$
 \end_inset
 
 
@@ -249,14 +237,6 @@ If
 
 \begin_deeper
 \begin_layout Enumerate
-First store the corresponding continuation values in a vector 
-\begin_inset Formula $W(x)=W(i*nb+x)$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
 Compute 
 \begin_inset Formula $V\left(x,\bar{m}\right)=u(c(x)+\bar{m})+W(x)$
 \end_inset
@@ -270,11 +250,11 @@ Compute
 
 \begin_layout Enumerate
 Let 
-\begin_inset Formula $x_{1}^{*}\in\arg\max V\left(x,\bar{m}\right)$
+\begin_inset Formula $x_{1}\in\arg\max V\left(x,\bar{m}\right)$
 \end_inset
 
  such that if the arg max is not a singleton, then 
-\begin_inset Formula $x_{1}^{*}$
+\begin_inset Formula $x_{1}$
 \end_inset
 
  has the smallest value of 
@@ -286,12 +266,33 @@ Let
 \end_layout
 
 \begin_layout Enumerate
+\begin_inset Formula $x_{i}=x_{1},$
+\end_inset
+
+
+\begin_inset Formula $m_{i}=\bar{m}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+While EXIT !=True.
+
+\series default
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
 If 
 \begin_inset Formula $V\left(x_{i},m_{i}\right)\leq V^{d}$
 \end_inset
 
 .
- Default is preferred to following the policy.
+ 
 \end_layout
 
 \begin_deeper
@@ -318,41 +319,25 @@ If
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)=\begin{cases}
-Y[i]-\phi(i)-\bar{m} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $W^{1,0}(i,b)+=V_{d}^{0}(i)\int_{\bar{m}}^{m_{i}}dG(m)$
+\begin_inset Formula $W^{1,0}(i,b)+=V_{d}^{0}(i)$
 \end_inset
 
 .
 \end_layout
 
 \begin_layout Enumerate
-EXIT ==True
+
+\series bold
+EXIT =True
 \end_layout
 
 \end_deeper
 \begin_layout Enumerate
-While EXIT !=True
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-Consider all 
-\begin_inset Formula $x\in\left\{ x:c(x)>c(x_{i})\right\} .$
+If 
+\begin_inset Formula $V\left(x_{i},m_{i}\right)>V^{d}$
 \end_inset
 
-
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-If 
+ and 
 \begin_inset Formula $\left\{ x:c(x)>c(x_{i})\right\} =\emptyset$
 \end_inset
 
@@ -375,6 +360,10 @@ FUNCTION_Last_update
 \end_deeper
 \begin_layout Enumerate
 If 
+\begin_inset Formula $V\left(x_{i},m_{i}\right)>V^{d}$
+\end_inset
+
+ and 
 \begin_inset Formula $\left\{ x:c(x)>c(x_{i})\right\} \neq\emptyset$
 \end_inset
 
@@ -398,7 +387,6 @@ FUNCTION_update
 \end_deeper
 \end_deeper
 \end_deeper
-\end_deeper
 \begin_layout Standard
 \begin_inset Newpage newpage
 \end_inset
@@ -418,58 +406,6 @@ FUNCTION_update
 
 \end_layout
 
-\begin_layout Enumerate
-If 
-\begin_inset Formula $V\left(x_{i},m_{i}\right)\leq V^{d}$
-\end_inset
-
-.
- Default is preferred to following the policy.
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-\begin_inset Formula $m.grid+=\left[-\bar{m},m_{i}\right]$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $b.grid+=\boldsymbol{nan.}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $d(i,b,m)+=\begin{cases}
-1 & \forall m\in\left[-\bar{m},m_{i}\right]\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)=\begin{cases}
-Y[i]-\phi(i)-\bar{m} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $W^{1,0}(i,b)+=V_{d}^{0}(i)\int_{\bar{m}}^{m_{i}}dG(m)$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
-EXIT ==True
-\end_layout
-
-\end_deeper
 \begin_layout Itemize
 For all 
 \begin_inset Formula $\left\{ x:c(x)>c(x_{i}^{*})\right\} $
@@ -514,14 +450,59 @@ Now there are multiple posibilities regarding
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $m_{aux}=\max\left\{ -c_{i},-\bar{m}\right\} $
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\xout off
+\uuline off
+\uwave off
+\noun off
+\color none
+Note that by stric concavity we know that 
+\begin_inset Formula $\hat{m}>-c_{i}$
+\end_inset
+
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\xout off
+\uuline off
+\uwave off
+\noun off
+\color none
+Check this step, else print error.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Then we need to worry about 
+\begin_inset Formula $-\bar{m}\geq\hat{m}$
+\end_inset
+
+ or 
+\begin_inset Formula $\hat{m}>-\bar{m}.$
 \end_inset
 
 
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\hat{m}>$
+\begin_inset Formula $\hat{m}$
 \end_inset
 
 
@@ -538,7 +519,7 @@ Now there are multiple posibilities regarding
 \noun off
 \color none
 
-\begin_inset Formula $m_{aux}$
+\begin_inset Formula $>-\bar{m}$
 \end_inset
 
 .
@@ -584,14 +565,6 @@ x_{i} & \forall m\in\left[\hat{m},m_{i}\right]\end{cases}$
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)=\begin{cases}
-c_{i} & \forall m\in\left[\hat{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
 \begin_inset Formula $W^{1,0}(i,b)+=\int_{\hat{m}}^{m_{i}}V\left(x_{i},m\right)dG(m)$
 \end_inset
 
@@ -617,121 +590,14 @@ c_{i} & \forall m\in\left[\hat{m},m_{i}\right].\end{cases}$
 \end_layout
 
 \begin_layout Enumerate
-EXIT == False.
+
+\series bold
+EXIT = False.
 \end_layout
 
 \end_deeper
 \begin_layout Enumerate
 \begin_inset Formula $V(x_{i},\hat{m})<V_{d}(y)$
-\end_inset
-
-.
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-Find the indifference point.
-\end_layout
-
-\begin_layout Enumerate
-Integrate.
-\end_layout
-
-\end_deeper
-\end_deeper
-\begin_layout Enumerate
-\begin_inset Formula $\hat{m}\leq$
-\end_inset
-
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\xout off
-\uuline off
-\uwave off
-\noun off
-\color none
-
-\begin_inset Formula $m_{aux}$
-\end_inset
-
-.
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-\begin_inset Formula $\hat{m}\leq-\bar{m}.$
-\end_inset
-
- 
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-\begin_inset Formula $V(x_{i},\bar{m})\geq V_{d}(y).$
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-\begin_inset Formula $m.grid+=\left[-\bar{m},m_{i}\right]$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $d(i,b,m)+=\begin{cases}
-0 & \forall m\in\left[-\bar{m},m_{i}\right]\end{cases}$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $b(i,b,m)+=\begin{cases}
-x_{i} & \forall m\in\left[-\bar{m},m_{i}\right]\end{cases}$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)+=\begin{cases}
-c_{i} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $W^{1,0}(i,b)+=\int_{\bar{m}}^{m_{i}}V\left(x_{i},m\right)dG(m)$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $q^{1,0}(i,b)+=\frac{\lambda+(1-\lambda)\left(z+q(i\times n_{b}+x_{i}\right)}{1+r}\int_{\bar{m}}^{m_{i}}dG(m)$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
-Exit Iteration.
-\end_layout
-
-\end_deeper
-\begin_layout Enumerate
-\begin_inset Formula $V(x_{i},\bar{m})<V_{d}(y)$
 \end_inset
 
 .
@@ -767,14 +633,6 @@ x_{i} & \forall m\in\left[\tilde{m},m_{i}\right]\end{cases}$
 \end_inset
 
 .
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)=\begin{cases}
-c_{i} & \forall m\in\left[\tilde{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
 \end_layout
 
 \begin_layout Enumerate
@@ -829,13 +687,37 @@ Y[i]-\phi(i)-\bar{m} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
 \end_layout
 
 \begin_layout Enumerate
-Exit Iteration.
+
+\series bold
+EXIT = True.
 \end_layout
 
 \end_deeper
 \end_deeper
 \begin_layout Enumerate
-\begin_inset Formula $\hat{m}\leq-c_{i}.$
+\begin_inset Formula $\hat{m}\leq\bar{m}$
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\xout off
+\uuline off
+\uwave off
+\noun off
+\color none
+.
+ We can consider the policy in what is left from the interval.
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+\begin_inset Formula $V(x_{i},\bar{m})\geq V_{d}(y).$
 \end_inset
 
 
@@ -843,7 +725,135 @@ Exit Iteration.
 
 \begin_deeper
 \begin_layout Enumerate
-Print Error, since this should never happend by stric concavity.
+\begin_inset Formula $m.grid+=\left[-\bar{m},m_{i}\right]$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $d(i,b,m)+=\begin{cases}
+0 & \forall m\in\left[-\bar{m},m_{i}\right]\end{cases}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $b(i,b,m)+=\begin{cases}
+x_{i} & \forall m\in\left[-\bar{m},m_{i}\right]\end{cases}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $W^{1,0}(i,b)+=\int_{\bar{m}}^{m_{i}}V\left(x_{i},m\right)dG(m)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $q^{1,0}(i,b)+=\frac{\lambda+(1-\lambda)\left(z+q(i\times n_{b}+x_{i}\right)}{1+r}\int_{\bar{m}}^{m_{i}}dG(m)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+EXIT = True.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+\begin_inset Formula $V(x_{i},\bar{m})<V_{d}(y)$
+\end_inset
+
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+\begin_inset Formula $\tilde{m}:V(x_{i},\tilde{m})=V^{d}(y).$
+\end_inset
+
+ This is going to be well defined by strict concavity of the utility function.
+\end_layout
+
+\begin_layout Enumerate
+check that 
+\begin_inset Formula $\tilde{m}>-\bar{m}.$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $d(i,b,m)=\begin{cases}
+0 & \forall m\in\left[\tilde{m},m_{i}\right]\end{cases}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $b(i,b,m)=\begin{cases}
+x_{i} & \forall m\in\left[\tilde{m},m_{i}\right]\end{cases}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $W^{1,0}(i,b)+=\int_{\tilde{m}}^{m_{i}}V\left(x_{i},m\right)dG(m)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $q^{1,0}(i,b)+=\frac{\lambda+(1-\lambda)\left(z+q(i\times n_{b}+x_{i}\right)}{1+r}\int_{\tilde{m}}^{m_{i}}dG(m)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $m.grid+=\left[-\bar{m},\tilde{m}\right]$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $d(i,b,m)=\begin{cases}
+1 & \forall m\in\left[-\bar{m},\tilde{m}\right]\end{cases}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $b.grid+=\boldsymbol{nan.}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $W^{1,0}(i,b)+=V_{d}(y)\int_{-\bar{m}}^{\tilde{m}}dG(m)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+EXIT = True.
 \end_layout
 
 \end_deeper
@@ -885,18 +895,8 @@ This is the last step, since we know that there is nothing else that can
 \end_layout
 
 \begin_layout Enumerate
-If 
-\begin_inset Formula $V\left(x_{i},m_{i}\right)>V^{d}$
-\end_inset
-
-.
- Default is not always preferred!
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
 if 
-\begin_inset Formula $c_{i}-\bar{m}\geq c_{lb}.$
+\begin_inset Formula $\left(c_{i}-\bar{m}\right)\geq c_{lb}.$
 \end_inset
 
  We can consider the policy in all of what is left!
@@ -937,14 +937,6 @@ x_{i} & \forall m\in\left[-\bar{m},m_{i}\right]\end{cases}$
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)+=\begin{cases}
-c_{i} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
 \begin_inset Formula $W^{1,0}(i,b)+=\int_{\bar{m}}^{m_{i}}V\left(x_{i},m\right)dG(m)$
 \end_inset
 
@@ -959,7 +951,9 @@ c_{i} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
 \end_layout
 
 \begin_layout Enumerate
-Exit Iteration.
+
+\series bold
+EXIT = True.
 \end_layout
 
 \end_deeper
@@ -1007,14 +1001,6 @@ x_{i} & \forall m\in\left[\tilde{m},m_{i}\right]\end{cases}$
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)=\begin{cases}
-c_{i} & \forall m\in\left[\tilde{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
 \begin_inset Formula $W^{1,0}(i,b)+=\int_{\tilde{m}}^{m_{i}}V\left(x_{i},m\right)dG(m)$
 \end_inset
 
@@ -1066,14 +1052,16 @@ Y[i]-\phi(i)-\bar{m} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
 \end_layout
 
 \begin_layout Enumerate
-Exit Iteration.
+
+\series bold
+EXIT = True.
 \end_layout
 
 \end_deeper
 \end_deeper
 \begin_layout Enumerate
 if 
-\begin_inset Formula $c_{i}-\bar{m}<c_{lb}.$
+\begin_inset Formula $\left(c_{i}-\bar{m}\right)<c_{lb}.$
 \end_inset
 
  We can 
@@ -1100,6 +1088,13 @@ check that
 \end_layout
 
 \begin_layout Enumerate
+\begin_inset Formula $m.grid+=\left[\tilde{m},m_{i}\right]$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
 \begin_inset Formula $d(i,b,m)=\begin{cases}
 0 & \forall m\in\left[\tilde{m},m_{i}\right]\end{cases}$
 \end_inset
@@ -1113,14 +1108,6 @@ x_{i} & \forall m\in\left[\tilde{m},m_{i}\right]\end{cases}$
 \end_inset
 
 .
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)=\begin{cases}
-c_{i} & \forall m\in\left[\tilde{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
 \end_layout
 
 \begin_layout Enumerate
@@ -1160,14 +1147,6 @@ c_{i} & \forall m\in\left[\tilde{m},m_{i}\right].\end{cases}$
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)=\begin{cases}
-Y[i]-\phi(i)-\bar{m} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
 \begin_inset Formula $W^{1,0}(i,b)+=V_{d}(y)\int_{-\bar{m}}^{\tilde{m}}dG(m)$
 \end_inset
 
@@ -1175,59 +1154,9 @@ Y[i]-\phi(i)-\bar{m} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
 \end_layout
 
 \begin_layout Enumerate
-Exit Iteration.
-\end_layout
 
-\end_deeper
-\end_deeper
-\begin_layout Enumerate
-If 
-\begin_inset Formula $V\left(x_{i},m_{i}\right)\leq V^{d}.$
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-\begin_inset Formula $m.grid+=\left[-\bar{m},m_{i}\right]$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $d(i,b,m)=\begin{cases}
-1, & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $c(i,b,m)=\begin{cases}
-Y[i]-\phi(y)-\bar{m} & \forall m\in\left[-\bar{m},m_{i}\right].\end{cases}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $W^{1,0}(i,b)=V_{d}^{0}(i)\int_{-\bar{m}}^{m_{i}}dG(m)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $q^{1,0}(i,b)=0.$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-Exit Iteration.
+\series bold
+EXIT = True.
 \end_layout
 
 \end_deeper
