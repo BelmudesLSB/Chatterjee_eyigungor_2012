@@ -1,0 +1,16 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6700 64-bit) (preloaded format=mex 2023.9.28)  28 SEP 2023 14:10
+entering extended mode
+**main.cpp econ_functions.cpp ggq_algorithm.cpp econ_functions.cpp math_functio
+ns.cpp
+(main.cpp
+This is MeX  Version 1.05  18 XII 1993  (B. Jackowski & M. Ry\'cko)
+! You can't use `macro parameter character #' in vertical mode.
+l.1 #
+     include <iostream>
+? 
+! Emergency stop.
+l.1 #
+     include <iostream>
+End of file on the terminal!
+
+No pages of output.
