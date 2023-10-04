@@ -1,8 +1,0 @@
-function c = consumption(q, b_grid, current_y, current_b, lambda, z)    
-
-    nb = length(b_grid);
-    c = zeros(nb);
-    for x=1:nb
-        c = -q(current_y * nb + x) * (b_grid(x) - (1-lambda) * b_grid(current_b)) + (lambda + z * (1-lambda)) * b_grid(current_b);
-    end
-end
