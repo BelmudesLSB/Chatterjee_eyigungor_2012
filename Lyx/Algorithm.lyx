@@ -624,7 +624,16 @@ EXIT = False.
 \begin_inset Formula $\tilde{m}:V(x_{i},\tilde{m})=V^{d}(y).$
 \end_inset
 
- This is going to be well defined by strict concavity of the utility function.
+ 
+\begin_inset Formula 
+\begin{align*}
+\frac{1}{1-\gamma}(c+m)^{1-\gamma}+W= & V_{d}\\
+\tilde{m}= & \left(\left(1-\gamma\right)\left(V_{d}-W\right)\right)^{1/(1-\gamma)}-c.
+\end{align*}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Enumerate
