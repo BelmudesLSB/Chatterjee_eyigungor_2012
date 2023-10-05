@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+
 #include "aux_functions.hpp"
 
 void displayV(double *v, int M){

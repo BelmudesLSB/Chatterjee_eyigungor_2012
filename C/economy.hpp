@@ -57,6 +57,7 @@ public:
     int guess_W();
     int guess_Q();
     int initialize();
+    void solve();
 
     // Value of default:
     double phi(int i);

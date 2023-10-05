@@ -4,5 +4,4 @@
 double utility(double c, double c_lb, double gamma);
 
 
-
 #endif

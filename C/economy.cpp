@@ -1,9 +1,12 @@
 #include <cmath>
 #include <iostream>
+
+#include <mex.h>
 #include "economy.hpp"
 #include "math_functions.hpp"
 #include "aux_functions.hpp"
 #include "econ_functions.hpp"
+#include "ggq_algorithm.hpp"
 
 
 CE_economy::CE_economy(double beta, double gamma, double rho, double sigma_e, double sigma_m, double d_0, double d_1, int ny, int nb, double b_min, double b_max, double m_bar, double t, int max_iter, double tol, double r, double lambda, double z, double xi, double eta_q, double eta_w, double eta_vd, double* ygridPtr, double* bgridPtr, double* pgridPtr, double* Vd_Ptr, double* W_ptr, double* q_Ptr){
@@ -241,5 +244,122 @@ double CE_economy::consumption_x(int x, int i, int j, double* q){
     */
     double c = Ygrid[i] + (Lambda + (1-Lambda)*Z) * Bgrid[j] - q[i*Nb+x] * (Bgrid[x] - (1-Lambda) * Bgrid[j]);
     return c;
+}
+
+void CE_economy::solve(){
+
+    double* Vd_0 = new double[Ny];
+    double* E_mV = new double[Nb*Ny]; // Store the results of the ggq_algorithm.
+    double* q_1 = new double[Nb*Ny];  // Store the results of the ggq_algorithm regarding the price, using q_0 as argument.
+    double* q_0 = new double[Nb*Ny]; 
+    double* w_0 = new double[Nb*Ny];
+    double* C_vector = new double[Nb]; // Create the vector for consumption:
+    double* W_vector = new double[Nb]; // Create the vector for continuation values:
+    double dis_q = 1.00;
+    double dis_w = 1.00;
+
+    int iter = 0;
+
+    while (dis_q > Tol || dis_w > Tol){ 
+
+            copy_values(Vd_0, Vd, Ny);
+            double aux = 0.00;
+
+            for (int i=0; i<Ny; i++){
+                aux = 0.00;
+                for (int j=0; j<Ny; j++){
+                    aux += P[i*Ny+j] * Vd_0[j];
+                }
+                Vd[i] =  (utility(Ygrid[i] - phi(i) - M_bar, Tol, Gamma) + Beta * (1-Xi) * aux  + Xi * W[i*Nb+(Nb-1)]); 
+            } 
+            
+            clear_values(q_1, Nb*Ny);         // Clear the values of the vector.
+            clear_values(E_mV, Nb*Ny);        // Clear the values of the vector.
+
+            for (int i=0; i<Ny; i++){
+                for (int j=0; j<Nb; j++){
+                    clear_values(C_vector, Nb); // Clear the values of the vector.
+                    clear_values(W_vector, Nb); // Clear the values of the vector.
+
+                    for (int x=0; x<Nb; x++){
+                        C_vector[x] = consumption_x(x, i, j, Q);
+                        W_vector[x] = W[i*Nb + x];
+                    }               
+                    E_mV[i*Nb+j] = ggq_topdown(Vd[i], Ny, Nb, C_vector, W_vector, Lambda, Z, R, 1-Gamma, Tol, -M_bar, M_bar, 0, Sigma_m, Tol, Max_iter, i, j, Q, q_1, P);         
+                }
+            }
+
+            copy_values(q_0, Q, Ny*Nb); // Store the old bond price.
+            copy_values(w_0, W, Ny*Nb); // Store the old continuation value.
+
+            clear_values(W, Ny*Nb);       // Clear the values of the vector.
+            clear_values(Q, Ny*Nb);       // Clear the values of the vector.
+
+            for (int i=0; i<Ny; i++){
+                for (int j=0; j<Nb; j++){
+                    for (int i_prime=0; i_prime<Ny; i_prime++){
+                        W[i*Nb + j] += Beta * P[i*Ny + i_prime] * E_mV[i_prime*Nb + j];
+                        Q[i*Nb + j] += P[i*Ny + i_prime] * q_1[i_prime*Nb + j];
+                    }
+                }
+            }
+
+            dis_q = 0;
+            dis_w = 0;
+            double aux_q = 0;
+            double aux_w = 0;
+
+            for (int i=0; i<Ny; i++){
+                for (int j=0; j<Nb; j++){
+                    aux_q = std::abs(Q[i*Nb + j] - q_0[i*Nb + j]);
+                    aux_w = std::abs(W[i*Nb + j] - w_0[i*Nb + j]);
+                }
+                if (aux_q > dis_q){
+                    dis_q = aux_q;
+                }
+                if (aux_w > dis_w){
+                    dis_w = aux_w;
+                }
+            }
+
+            for (int i=0; i<Ny; i++){
+                for (int j=0; j<Nb; j++){
+                    W[i*Nb + j] = Eta_w * w_0[i*Nb + j] + (1-Eta_w) * W[i*Nb + j];
+                    Q[i*Nb + j] = Eta_q * q_0[i*Nb + j] + (1-Eta_q) * Q[i*Nb + j];
+                    
+                }
+            }
+
+            iter += 1;
+
+            if (iter % 5000 == 0){
+                std::cout << "Iteration: " << iter << std::endl;
+                std::cout << "Distances| Q:" << dis_q << " and W:" << dis_w << std::endl;
+                mexPrintf("Iteration: %d\n", iter);
+                mexPrintf("Current Distance: Q %f and W %f\n", dis_q, dis_w);
+            }
+
+            if (iter> Max_iter){
+                std::cout << "The algorithm did not converge" << std::endl;
+                mexPrintf("The algorithm did not converge\n");
+                break;
+            }
+
+            if (dis_q < Tol && dis_w < Tol){
+                std::cout<< "The algorithm converged" << std::endl;
+                std::cout << "The algorithm converged in " << iter << " iterations" << std::endl;
+                std::cout << "Distances: " << dis_q << " and " << dis_w << std::endl;
+                std::cout << "The bond price is: " << std::endl;
+                displayQ(Q, Ny, Nb);
+                std::cout << "The continuation value is: " << std::endl;
+                displayQ(W, Ny, Nb);
+                std::cout << "The value of default is: " << std::endl;
+                displayV(Vd, Ny);
+                mexPrintf("Solution found\n");
+                mexPrintf("The algorithm converged in %d iterations\n", iter);
+                mexPrintf("Distances: Q %f and W %f\n", dis_q, dis_w);
+                break;
+            }
+    }
 }
 
