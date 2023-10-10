@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 #include <mex.h>
+#include <omp.h>
 
 #include "economy.hpp"
 #include "math_functions.hpp"
@@ -55,8 +56,17 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]){
     double eta_w = mxGetScalar(mxGetField(paramsStruct, 0, "eta_w"));
     double eta_vd = mxGetScalar(mxGetField(paramsStruct, 0, "eta_vd"));
 
-    //New! set the number of threads:
-    //omp_set_num_threads(nthreads);
+    // Parallelization parameters:
+    
+    int nthreads = static_cast<int>(mxGetScalar(mxGetField(paramsStruct, 0, "nthreads")));
+    omp_set_num_threads(nthreads);
+    
+    #pragma omp parallel
+    {
+        if (omp_get_thread_num() == 0) {
+            mexPrintf("Number of threads: %d\n", omp_get_num_threads());
+        }
+    }
 
     /*
     Section 2: Allocate memory space to store the results of the model:
@@ -98,7 +108,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]){
     */  
     mexPrintf("Solving the model... \n");
     c_economy.solve();
-    
+
+
     /*
     Section 5: Copy and Export to MATLAB
     */

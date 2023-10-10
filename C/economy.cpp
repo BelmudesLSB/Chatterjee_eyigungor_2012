@@ -1,6 +1,6 @@
 #include <cmath>
 #include <iostream>
-
+#include <omp.h>
 #include <mex.h>
 #include "economy.hpp"
 #include "math_functions.hpp"
@@ -167,6 +167,7 @@ int CE_economy::guess_W(){
 
 int CE_economy::initialize(){
     // This functions initializes grids, and verifies results.
+
     CE_economy::bond_grid();
     CE_economy::income_grid();
     CE_economy::prob_grid();
@@ -253,8 +254,8 @@ void CE_economy::solve(){
     double* q_1 = new double[Nb*Ny];  // Store the results of the ggq_algorithm regarding the price, using q_0 as argument.
     double* q_0 = new double[Nb*Ny]; 
     double* w_0 = new double[Nb*Ny];
-    double* C_vector = new double[Nb]; // Create the vector for consumption:
-    double* W_vector = new double[Nb]; // Create the vector for continuation values:
+    //double* C_vector = new double[Nb]; // Create the vector for consumption:
+    //double* W_vector = new double[Nb]; // Create the vector for continuation values:
     double dis_q = 1.00;
     double dis_w = 1.00;
 
@@ -263,29 +264,48 @@ void CE_economy::solve(){
     while (dis_q > Tol || dis_w > Tol){ 
 
             copy_values(Vd_0, Vd, Ny);
-            double aux = 0.00;
-
+            /*
             for (int i=0; i<Ny; i++){
                 aux = 0.00;
                 for (int j=0; j<Ny; j++){
                     aux += P[i*Ny+j] * Vd_0[j];
                 }
                 Vd[i] =  (utility(Ygrid[i] - phi(i) - M_bar, Tol, Gamma) + Beta * (1-Xi) * aux  + Xi * W[i*Nb+(Nb-1)]); 
-            } 
-            
-            clear_values(q_1, Nb*Ny);         // Clear the values of the vector.
-            clear_values(E_mV, Nb*Ny);        // Clear the values of the vector.
+            }*/
 
+            // Compute the value of default (Parallelized):
+            double aux = 0.00;
+            int j = 0;
+            #pragma omp parallel for private(aux, j)
+            for (int i=0; i<Ny; i++){
+                aux = 0.00;
+                j = 0;
+                for (j; j<Ny; j++){
+                    aux += P[i*Ny+j] * Vd_0[j];
+                }
+                Vd[i] =  (utility(Ygrid[i] - phi(i) - M_bar, Tol, Gamma) + Beta * (1-Xi) * aux  + Xi * W[i*Nb+(Nb-1)]); 
+            }
+                
+
+            clear_values(q_1, Nb*Ny);           // Clear the values of the vector.
+            clear_values(E_mV, Nb*Ny);          // Clear the values of the vector.
+
+            int x;
+            #pragma omp parallel for private(j, x) collapse(2) schedule(dynamic)
             for (int i=0; i<Ny; i++){
                 for (int j=0; j<Nb; j++){
-                    clear_values(C_vector, Nb); // Clear the values of the vector.
-                    clear_values(W_vector, Nb); // Clear the values of the vector.
-
+                    double* C_vector = new double[Nb]; // Create the vector for consumption:
+                    double* W_vector = new double[Nb]; 
+                    clear_values(C_vector, Nb);  // Clear the values of the vector.
+                    clear_values(W_vector, Nb);  // Clear the values of the vector.
                     for (int x=0; x<Nb; x++){
                         C_vector[x] = consumption_x(x, i, j, Q);
                         W_vector[x] = W[i*Nb + x];
-                    }               
-                    E_mV[i*Nb+j] = ggq_topdown(Vd[i], Ny, Nb, C_vector, W_vector, Lambda, Z, R, 1-Gamma, Tol, -M_bar, M_bar, 0, Sigma_m, Tol, Max_iter, i, j, Q, q_1, P);         
+                    }
+                    E_mV[i*Nb+j] = ggq_topdown(Vd[i], Ny, Nb, C_vector, W_vector, Lambda, Z, R, 1-Gamma, Tol, -M_bar, M_bar, 0, Sigma_m, Tol, Max_iter, i, j, Q, P).EMV;
+                    q_1[i*Nb+j] = ggq_topdown(Vd[i], Ny, Nb, C_vector, W_vector, Lambda, Z, R, 1-Gamma, Tol, -M_bar, M_bar, 0, Sigma_m, Tol, Max_iter, i, j, Q, P).Q1;
+                    delete [] C_vector;
+                    delete [] W_vector;         
                 }
             }
 

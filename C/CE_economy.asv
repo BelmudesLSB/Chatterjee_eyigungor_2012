@@ -6,14 +6,12 @@ clear;
 
 %% Step 0 : we need to compile the MEX code.
 
-mex -g main.cpp economy.cpp ggq_algorithm.cpp econ_functions.cpp math_functions.cpp aux_functions.cpp
-%mex CXXFLAGS="$CXXFLAGS -fopenmp" LDFLAGS="$LDFLAGS -fopenmp" main.cpp ArellanoEconomy.cpp Utils.cpp
+mex CXXFLAGS="$CXXFLAGS -fopenmp -O3" LDFLAGS="$LDFLAGS -fopenmp" main.cpp economy.cpp ggq_algorithm.cpp econ_functions.cpp math_functions.cpp aux_functions.cpp;
 
 %% Step 1: Assuming you have compiled the C++ code into a MEX file named "main_mex"
-
 % Set up the parameters for the economy:
 tic;
-params.beta = 0.95402;       % discount factors
+params.beta = 0.95402;      % discount factors
 params.gamma = 2;           % risk aversion
 
 % Income process parameters:
@@ -37,13 +35,14 @@ params.tol = 1e-6;          % Tolerance for convergence
 
 % Term structure parameters:
 params.r = 0.01;            % Risk free interest rate
-params.lambda = 0.05;      % Reciprocal of average maturity
+params.lambda = 0.05;       % Reciprocal of average maturity
 params.z = 0.03;            % Coupon payments
 params.xi = 0.035;          % Probability of reentry
 params.eta_q = 0.995;       % weight on the old bond price
 params.eta_w = 0.9;         % weight on the new continuation value
 params.eta_vd = 0;          % weight on the new value of default
 
+params.nthreads = 16;       % Number of threads <= 16. 
 
 % Call the MEX function to solve the model
 output = main(params);

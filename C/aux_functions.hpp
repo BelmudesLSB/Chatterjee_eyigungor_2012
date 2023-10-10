@@ -11,5 +11,6 @@ void copy_values(double *f_to_fill, double *g_get_values, int R);
 
 void clear_values(double *f_to_clear, int R);
 
+struct Result{double EMV; double Q1;};
 
 #endif

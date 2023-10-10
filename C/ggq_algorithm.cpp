@@ -7,8 +7,8 @@
 #include "econ_functions.hpp"
 #include "ggq_algorithm.hpp"
 
-double ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, double Lambda, double Z, double R, double ONE_MINUS_RRA, double C_LB, double GGQ_MLB, double GGQ_MUB, double GGQ_MMEAN, double GGQ_MSTD,
-	double ERRTOL_BISECT, int MAXITERS_BISECT, int y, int b, double* Q_0, double* Q_1, double* P){
+Result ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, double Lambda, double Z, double R, double ONE_MINUS_RRA, double C_LB, double GGQ_MLB, double GGQ_MUB, double GGQ_MMEAN, double GGQ_MSTD,
+	double ERRTOL_BISECT, int MAXITERS_BISECT, int y, int b, double* Q_0, double* P){
 
 	/* The arguments are:
 		VD: value of default
@@ -37,6 +37,7 @@ double ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, d
 	int i, ichoice;
 	double mnow = GGQ_MUB;	// m_1
 	bool bContinue = false;
+	double Q_1 = 0;
 
 	// initiate Vnow at a really small number
 	Vnow = wlist[0];
@@ -88,7 +89,10 @@ double ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, d
 		// no feasible choice; always default
 		// CENDupdate = VD;
 		// We dont need to integrate anything E_m[v(y,b,m)]=VD(y)
-		return VD;
+		Result result;
+		result.EMV = VD;
+		result.Q1 = 0;
+		return result;
 	}
 	else
 	{	// There exists at least one feasible choice at m_1
@@ -159,7 +163,7 @@ double ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, d
 				{   
 					temp = gauss_legendre_CENDupdate(mnext, mnow, Cnow, Wnow, GGQ_MMEAN, GGQ_MSTD, ONE_MINUS_RRA);
                     double prob_m = (normcdf(mnow - GGQ_MMEAN, GGQ_MSTD) - normcdf(mnext - GGQ_MMEAN, GGQ_MSTD))/(normcdf(GGQ_MUB - GGQ_MMEAN, GGQ_MSTD) - normcdf(GGQ_MLB - GGQ_MMEAN, GGQ_MSTD));
-                    Q_1[y*Nlist+b] += prob_m * (Lambda + (1-Lambda)*(Z + Q_0[y*Nlist+ichoice_prev])) * (1/(1+R));
+                    Q_1 += prob_m * (Lambda + (1-Lambda)*(Z + Q_0[y*Nlist+ichoice_prev])) * (1/(1+R));
 					//std::cout << "2. prob_m = " << prob_m << std::endl;
 					CENDupdate += temp;
 					// update and continue algorithm
@@ -177,7 +181,7 @@ double ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, d
 						// (Cnow,Wnow) applies until M1=C_LB-Cnow>MLB.
 						temp = gauss_legendre_CENDupdate(M1, mnow, Cnow, Wnow, GGQ_MMEAN, GGQ_MSTD, ONE_MINUS_RRA);
                         double prob_m = (normcdf(mnow - GGQ_MMEAN, GGQ_MSTD) - normcdf(M1 - GGQ_MMEAN, GGQ_MSTD))/(normcdf(GGQ_MUB - GGQ_MMEAN, GGQ_MSTD) - normcdf(GGQ_MLB - GGQ_MMEAN, GGQ_MSTD));
-                        Q_1[y*Nlist+b] += prob_m * (Lambda + (1-Lambda)*(Z + Q_0[y*Nlist+ichoice_prev])) * (1/(1+R));
+                        Q_1 += prob_m * (Lambda + (1-Lambda)*(Z + Q_0[y*Nlist+ichoice_prev])) * (1/(1+R));
 						////std::cout << "3. prob_m = " << prob_m << std::endl;
 						CENDupdate += temp;
 
@@ -229,7 +233,7 @@ double ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, d
 						// (Cnow,Wnow) applies until MLB. The policy is well defined over all the interval.
 						temp = gauss_legendre_CENDupdate(GGQ_MLB, mnow, Cnow, Wnow, GGQ_MMEAN, GGQ_MSTD, ONE_MINUS_RRA);
                         double prob_m = (normcdf(mnow - GGQ_MMEAN, GGQ_MSTD) - normcdf( GGQ_MLB - GGQ_MMEAN, GGQ_MSTD))/(normcdf(GGQ_MUB - GGQ_MMEAN, GGQ_MSTD) - normcdf(GGQ_MLB - GGQ_MMEAN, GGQ_MSTD));
-						Q_1[y*Nlist+b] += prob_m * (Lambda + (1-Lambda)*(Z + Q_0[y*Nlist+ichoice_prev])) * (1/(1+R));
+						Q_1 += prob_m * (Lambda + (1-Lambda)*(Z + Q_0[y*Nlist+ichoice_prev])) * (1/(1+R));
 						//std::cout << "4. prob_m = " << prob_m << std::endl;
 						CENDupdate += temp;
 					}
@@ -242,7 +246,7 @@ double ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, d
 				temp = gauss_legendre_CENDupdate(Vcandidate, mnow, Cnow, Wnow, GGQ_MMEAN, GGQ_MSTD, ONE_MINUS_RRA)
 					+ VD*(normcdf(Vcandidate - GGQ_MMEAN, GGQ_MSTD) - normcdf(GGQ_MLB - GGQ_MMEAN, GGQ_MSTD));
                 double prob_m = (normcdf(mnow - GGQ_MMEAN, GGQ_MSTD) - normcdf( Vcandidate - GGQ_MMEAN, GGQ_MSTD))/(normcdf(GGQ_MUB - GGQ_MMEAN, GGQ_MSTD) - normcdf(GGQ_MLB - GGQ_MMEAN, GGQ_MSTD));
-                Q_1[y*Nlist+b] += prob_m * (Lambda + (1-Lambda)*(Z + Q_0[y*Nlist+ichoice_prev])) * (1/(1+R));
+                Q_1 += prob_m * (Lambda + (1-Lambda)*(Z + Q_0[y*Nlist+ichoice_prev])) * (1/(1+R));
 				CENDupdate += temp;
 				//std::cout << "1. prob_m = " << prob_m << std::endl;
 				// Lucas:
@@ -252,8 +256,12 @@ double ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, d
 		} // while loop
 
 		CENDupdate = CENDupdate/(normcdf(GGQ_MUB - GGQ_MMEAN, GGQ_MSTD) - normcdf(GGQ_MLB - GGQ_MMEAN, GGQ_MSTD));
-		return CENDupdate;
 
+		Result result;
+		result.EMV = CENDupdate;
+		result.Q1 = Q_1;
+
+		return result;
 	}
 }
 
