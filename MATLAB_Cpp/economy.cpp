@@ -264,18 +264,9 @@ void CE_economy::solve(){
     while (dis_q > Tol || dis_w > Tol){ 
 
             copy_values(Vd_0, Vd, Ny);
-            /*
-            for (int i=0; i<Ny; i++){
-                aux = 0.00;
-                for (int j=0; j<Ny; j++){
-                    aux += P[i*Ny+j] * Vd_0[j];
-                }
-                Vd[i] =  (utility(Ygrid[i] - phi(i) - M_bar, Tol, Gamma) + Beta * (1-Xi) * aux  + Xi * W[i*Nb+(Nb-1)]); 
-            }*/
-
-            // Compute the value of default (Parallelized):
             double aux = 0.00;
             int j = 0;
+
             #pragma omp parallel for private(aux, j)
             for (int i=0; i<Ny; i++){
                 aux = 0.00;
@@ -291,7 +282,7 @@ void CE_economy::solve(){
             clear_values(E_mV, Nb*Ny);          // Clear the values of the vector.
 
             int x;
-            #pragma omp parallel for private(j, x) collapse(2) schedule(dynamic)
+            #pragma omp parallel for private(j, x) collapse(2) schedule(dynamic) shared(E_mV, P, Q, Vd)
             for (int i=0; i<Ny; i++){
                 for (int j=0; j<Nb; j++){
                     double* C_vector = new double[Nb]; // Create the vector for consumption:
@@ -352,9 +343,12 @@ void CE_economy::solve(){
 
             iter += 1;
 
+            if (iter % 500 == 0){
+                Eta_q = Eta_q * 0.1 + 0.9 * 0.995;
+                Eta_w = Eta_w * 0.1 + 0.9 * 0.9;
+            }
+
             if (iter % 5000 == 0){
-                std::cout << "Iteration: " << iter << std::endl;
-                std::cout << "Distances| Q:" << dis_q << " and W:" << dis_w << std::endl;
                 mexPrintf("Iteration: %d\n", iter);
                 mexPrintf("Current Distance: Q %f and W %f\n", dis_q, dis_w);
             }
@@ -366,15 +360,6 @@ void CE_economy::solve(){
             }
 
             if (dis_q < Tol && dis_w < Tol){
-                std::cout<< "The algorithm converged" << std::endl;
-                std::cout << "The algorithm converged in " << iter << " iterations" << std::endl;
-                std::cout << "Distances: " << dis_q << " and " << dis_w << std::endl;
-                std::cout << "The bond price is: " << std::endl;
-                displayQ(Q, Ny, Nb);
-                std::cout << "The continuation value is: " << std::endl;
-                displayQ(W, Ny, Nb);
-                std::cout << "The value of default is: " << std::endl;
-                displayV(Vd, Ny);
                 mexPrintf("Solution found\n");
                 mexPrintf("The algorithm converged in %d iterations\n", iter);
                 mexPrintf("Distances: Q %f and W %f\n", dis_q, dis_w);

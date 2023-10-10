@@ -38,8 +38,8 @@ params.r = 0.01;            % Risk free interest rate
 params.lambda = 0.05;       % Reciprocal of average maturity
 params.z = 0.03;            % Coupon payments
 params.xi = 0.035;          % Probability of reentry
-params.eta_q = 0.995;       % weight on the old bond price
-params.eta_w = 0.9;         % weight on the new continuation value
+params.eta_q = 0.8;       % weight on the old bond price
+params.eta_w = 0.7;         % weight on the new continuation value
 params.eta_vd = 0;          % weight on the new value of default
 
 params.nthreads = 16;       % Number of threads <= 16. 
