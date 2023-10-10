@@ -10,6 +10,7 @@ mex CXXFLAGS="$CXXFLAGS -fopenmp -O3" LDFLAGS="$LDFLAGS -fopenmp" main.cpp econo
 
 %% Step 1: Assuming you have compiled the C++ code into a MEX file named "main_mex"
 % Set up the parameters for the economy:
+
 tic;
 params.beta = 0.95402;      % discount factors
 params.gamma = 2;           % risk aversion
@@ -38,8 +39,8 @@ params.r = 0.01;            % Risk free interest rate
 params.lambda = 0.05;       % Reciprocal of average maturity
 params.z = 0.03;            % Coupon payments
 params.xi = 0.035;          % Probability of reentry
-params.eta_q = 0.8;       % weight on the old bond price
-params.eta_w = 0.7;         % weight on the new continuation value
+params.eta_q = 0.6;         % weight on the old bond price
+params.eta_w = 0.2;         % weight on the new continuation value
 params.eta_vd = 0;          % weight on the new value of default
 
 params.nthreads = 16;       % Number of threads <= 16. 

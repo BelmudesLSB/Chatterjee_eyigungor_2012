@@ -37,7 +37,7 @@ Result ggq_topdown(double VD, int ny, int Nlist, double *clist, double *wlist, d
 	int i, ichoice;
 	double mnow = GGQ_MUB;	// m_1
 	bool bContinue = false;
-	double Q_1 = 0;
+	double Q_1 = 0.00;
 
 	// initiate Vnow at a really small number
 	Vnow = wlist[0];

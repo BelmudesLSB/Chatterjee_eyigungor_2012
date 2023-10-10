@@ -1,7 +1,6 @@
 %% Step: Load the results and the parameters from the CE_economy file;
-clear all, clc
-load('C:\Users\belmu\OneDrive\Escritorio\Repositories\Check\4\MATLAB\Parameters.mat')
-load('C:\Users\belmu\OneDrive\Escritorio\Repositories\Check\4\MATLAB\Results_calibrated_model.mat')
+load('C:\Users\IRLXB03\Desktop\Respositories\After_presentation\Open_MP_Implementation\Chatterjee_eyigungor_2012\MATLAB_Cpp\Parameters.mat')
+load('C:\Users\IRLXB03\Desktop\Respositories\After_presentation\Open_MP_Implementation\Chatterjee_eyigungor_2012\MATLAB_Cpp\Results_calibrated_model.mat')
 
 %% Step: Unload parameters:
 
@@ -86,7 +85,6 @@ for i=1:ny
             for x=1:nb
                 if C(x) + m_bar > 0 
                     temp2 = V_x(gamma, C(x)+m_bar, W(x));
-                    disp(temp2)
                     if temp2 > temp1
                         temp1 = temp2;
                         x_1 = x;
@@ -121,7 +119,7 @@ for i=1:ny
                 end
                 if isempty(X_tilde) % There is nothing to replace the policy with.
                    % FUNCTION_LAST_UPDATE:
-                   if C(x_i)-m_bar>=10e-6 %1.
+                   if C(x_i)-m_bar>=10e-8 %1.
                        if V_x(gamma, C(x_i) - m_bar, W(x_i)) >= Vd(i)
                            m_grid = [-m_bar, m_i, m_grid];
                            dp_grid = [0, dp_grid];
@@ -237,7 +235,7 @@ W_1 = zeros(ny,nb);
 for i=1:ny
     for b=1:nb
         for i_prime=1:ny
-            Q_1(i,b) = Q_1(i,b)+ P(i,i_prime)*Q_10(i_prime,b);s
+            Q_1(i,b) = Q_1(i,b)+ P(i,i_prime)*Q_10(i_prime,b);
             W_1(i,b) = W_1(i,b)+ beta * P(i,i_prime)*W_10(i_prime,b);
         end
     end

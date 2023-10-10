@@ -337,7 +337,6 @@ void CE_economy::solve(){
                 for (int j=0; j<Nb; j++){
                     W[i*Nb + j] = Eta_w * w_0[i*Nb + j] + (1-Eta_w) * W[i*Nb + j];
                     Q[i*Nb + j] = Eta_q * q_0[i*Nb + j] + (1-Eta_q) * Q[i*Nb + j];
-                    
                 }
             }
 
